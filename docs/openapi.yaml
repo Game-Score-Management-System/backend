@@ -1,0 +1,446 @@
+openapi: 3.0.3
+info:
+  title: Game Core Manager API
+  description: API for managing game core functionalities
+  version: 1.0.0
+  contact:
+    name: Juan Romero
+    email: juang20133@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local server
+tags:
+  - name: Auth
+    description: Authentication related endpoints
+  - name: Users
+    description: User related endpoints
+  - name: Scores
+    description: Scores related endpoints
+  - name: Admin
+    description: Administration related endpoints
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new player
+      description: Register a new player in the system
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: User Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse400'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse409'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login and generate JWT token
+      description: Login and generate JWT token
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: example@domain.com
+                password:
+                  type: string
+                  example: password
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get authenticated player's profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+    put:
+      tags:
+        - Users
+      summary: Update authenticated player's profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                profilePicture:
+                  type: string
+                  example: https://example.com/image.jpg
+              required:
+                - name
+                - profilePicture
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /users/scores:
+    get:
+      tags:
+        - Users
+      summary: Get all scores of the authenticated player
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /scores:
+    post:
+      tags:
+        - Scores
+      summary: Add a new score from the game
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                game:
+                  type: string
+                  example: 'game1'
+                score:
+                  type: integer
+                  example: 100
+                userId:
+                  type: string
+                  format: uuid
+                  example: 123e4567-e89b-12d3-a456-426614174000
+              required:
+                - game
+                - score
+                - userId
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid score
+                  status:
+                    type: integer
+                    example: 400
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /scores/leaderboard:
+    get:
+      tags:
+        - Scores
+      summary: Get global ranking of top players
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    scoreId:
+                      type: string
+                      format: uuid
+                    userId:
+                      type: string
+                      format: uuid
+                    game:
+                      type: string
+                    score:
+                      type: integer
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+  /scores/{scoreId}:
+    delete:
+      tags:
+        - Scores
+      summary: Delete a specific score (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: scoreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /users/admin:
+    get:
+      tags:
+        - Admin
+      summary: List and manage players (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+  /users/admin/{userId}:
+    delete:
+      tags:
+        - Admin
+      summary: Delete or block users (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+    patch:
+      tags:
+        - Admin
+      summary: Enable or block users (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                disabled:
+                  type: boolean
+                  example: true
+              required:
+                - disabled
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: example@domain.com
+        password:
+          type: string
+      required:
+        - name
+        - email
+        - password
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: example@domain.com
+        role:
+          type: string
+          format: enum
+          example: 'ADMIN | PLAYER'
+        username:
+          type: string
+          example: johndoe@
+        profilePicture:
+          type: string
+          example: https://example.com/image.jpg
+    ScoreResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          scoreId:
+            type: string
+            format: uuid
+          userId:
+            type: string
+            format: uuid
+          game:
+            type: string
+          score:
+            type: integer
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+          deletedAt:
+            type: string
+            format: date-time
+    ErrorResponse400:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Invalid email or password
+        status:
+          type: integer
+          example: 400
+    ErrorResponse409:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Email already in use
+        status:
+          type: integer
+          example: 409
+    ErrorResponse401:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+        status:
+          type: integer
+          example: 401
+security:
+  - bearerAuth: []
