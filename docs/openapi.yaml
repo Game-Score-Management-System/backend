@@ -515,7 +515,7 @@ components:
         name:
           type: string
           example: John
-        lastName:
+        lastname:
           type: string
           example: Doe
         email:
@@ -526,7 +526,7 @@ components:
           type: string
       required:
         - name
-        - lastName
+        - lastname
         - email
         - password
     UserResponse:
@@ -538,7 +538,7 @@ components:
         name:
           type: string
           example: John
-        lastName:
+        lastname:
           type: string
           example: Doe
         email:
