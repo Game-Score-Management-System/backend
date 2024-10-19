@@ -514,7 +514,10 @@ components:
       properties:
         name:
           type: string
-          example: John Doe
+          example: John
+        lastName:
+          type: string
+          example: Doe
         email:
           type: string
           format: email
@@ -523,6 +526,7 @@ components:
           type: string
       required:
         - name
+        - lastName
         - email
         - password
     UserResponse:
@@ -533,7 +537,10 @@ components:
           format: uuid
         name:
           type: string
-          example: John Doe
+          example: John
+        lastName:
+          type: string
+          example: Doe
         email:
           type: string
           format: email
