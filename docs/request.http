@@ -1,0 +1,52 @@
+POST http://localhost:3000/api/v1/auth/login
+
+
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "name": "John",
+    "lastname": "Doe",
+    "email": "example@gmail.com",
+    "password": "password"
+}
+
+###
+GET http://localhost:3000/api/v1/scores?page=1&limit=50
+
+###
+GET http://localhost:3000/api/v1/scores/5b725b60-dac3-4a0e-8a51-9b2da50fe9e5
+
+###
+PATCH http://localhost:3000/api/v1/scores/5b725b60-dac3-4a0e-8a51-9b2da50fe9e5
+Content-Type: application/json
+
+{
+    "score": 10020000,
+    "propuedadFalse": "hoal mundo"
+}
+
+###
+POST http://localhost:3000/api/v1/scores
+Content-Type: application/json
+
+{
+    "propiedadFake": 12345
+}
+
+
+
+# Endpoints reñated to users
+
+###
+GET http://localhost:3000/api/v1/users/profile/b5a6f889-8470-4c2a-b9ad-cbe0591d6f40
+
+
+###
+PATCH  http://localhost:3000/api/v1/users/profile/b5a6f889-8470-4c2a-b9ad-cbe0591d6f40
+Content-Type: application/json
+
+{
+    "name": "abcde"
+}
