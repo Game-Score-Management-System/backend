@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@/app.module';
 import { ResponseInterceptor } from '@/interceptors/response/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Main');
 
   // Define the global prefix
   app.setGlobalPrefix('api/v1');
@@ -16,6 +17,8 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  await app.listen(process.env.PORT ?? 3000);
+  const PORT = process.env.PORT ?? 3000;
+  await app.listen(PORT);
+  logger.log(`Server running on port ${PORT}`);
 }
 bootstrap();
