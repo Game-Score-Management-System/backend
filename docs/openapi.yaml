@@ -48,6 +48,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse400'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '409':
           description: Conflict
           content:
@@ -56,6 +62,10 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse409'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /auth/login:
     post:
       tags:
@@ -99,8 +109,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /users/profile/{userId}:
     get:
       tags:
@@ -128,8 +148,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
     patch:
       tags:
         - Users
@@ -165,17 +195,30 @@ paths:
                   message:
                     type: string
                     example: Image URL is not valid
-                  status:
+                  statusCode:
                     type: integer
                     example: 400
+                  success:
+                    type: boolean
+                    example: false
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /users/scores/{userId}:
     get:
       tags:
@@ -209,17 +252,30 @@ paths:
                   message:
                     type: string
                     example: Invalid user ID
-                  status:
+                  statusCode:
                     type: integer
                     example: 400
+                  success:
+                    type: boolean
+                    example: false
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /scores:
     post:
       tags:
@@ -261,17 +317,30 @@ paths:
                   message:
                     type: string
                     example: Invalid score
-                  status:
+                  statusCode:
                     type: integer
                     example: 400
+                  success:
+                    type: boolean
+                    example: false
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /scores/leaderboard:
     get:
       tags:
@@ -316,17 +385,30 @@ paths:
                   message:
                     type: string
                     example: Invalid page number
-                  status:
+                  statusCode:
                     type: integer
                     example: 400
+                  success:
+                    type: boolean
+                    example: false
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /scores/{scoreId}:
     delete:
       tags:
@@ -354,17 +436,30 @@ paths:
                   message:
                     type: string
                     example: Invalid score ID
-                  status:
+                  statusCode:
                     type: integer
                     example: 400
+                  success:
+                    type: boolean
+                    example: false
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /users/admin:
     get:
       tags:
@@ -403,8 +498,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
   /users/admin/{userId}:
     delete:
       tags:
@@ -441,8 +546,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
     patch:
       tags:
         - Admin
@@ -490,8 +605,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
 components:
   securitySchemes:
     bearerAuth:
@@ -598,29 +724,62 @@ components:
     ErrorResponse400:
       type: object
       properties:
+        statusCode:
+          type: integer
+          example: 400
+        success:
+          type: boolean
+          example: false
         message:
           type: string
           example: Invalid email or password
-        status:
-          type: integer
-          example: 400
     ErrorResponse409:
       type: object
       properties:
+        statusCode:
+          type: integer
+          example: 409
+        success:
+          type: boolean
+          example: false
         message:
           type: string
           example: Email already in use
-        status:
-          type: integer
-          example: 409
     ErrorResponse401:
       type: object
       properties:
+        statusCode:
+          type: integer
+          example: 401
+        success:
+          type: boolean
+          example: false
         message:
           type: string
           example: Unauthorized
-        status:
+    ErrorResponse403:
+      type: object
+      properties:
+        statusCode:
           type: integer
-          example: 401
+          example: 403
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Forbidden
+    ErrorResponse500:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 500
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Internal Server Error
 security:
   - bearerAuth: []
