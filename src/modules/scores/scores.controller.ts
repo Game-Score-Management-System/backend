@@ -12,20 +12,25 @@ import {
 import { ScoresService } from './scores.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
-import { PaginationQueryDto } from 'src/commons/dto/pagination-query';
+import { PaginationQueryDto } from '@/common/dto';
 
 @Controller('scores')
 export class ScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
   @Get()
-  getAllScores(@Query() paginationQueryDto: PaginationQueryDto) {
+  findAll(@Query() paginationQueryDto: PaginationQueryDto) {
     console.log(paginationQueryDto);
     return this.scoresService.findAll(paginationQueryDto);
   }
   @Get(':id')
-  getScoreById(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.scoresService.findOne(id);
+  }
+
+  @Get('leaderboard')
+  findLeaderboard(@Query() paginationQueryDto: PaginationQueryDto) {
+    return this.scoresService.findLeaderboard(paginationQueryDto);
   }
 
   @Post()

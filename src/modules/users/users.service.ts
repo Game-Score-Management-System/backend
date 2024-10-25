@@ -1,41 +1,56 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { USERS_DATA } from 'src/utils/data-mock';
+import { USERS_DATA } from '@/common/utils/data-mock';
+import { User } from './entities/user.entity';
+import { Response } from '@/interfaces/response.interface';
 
 @Injectable()
 export class UsersService {
   private users = USERS_DATA;
 
-  getProfile(id: string) {
-    return this.users.find((user) => user.id === id);
+  getProfile(id: string): Response<User> {
+    const profile = this.users.find((user) => user.id === id);
+    return {
+      data: profile
+    };
   }
 
-  updateProfile(id: string, userDto: UpdateUserDto) {
-    const data = this.getProfile(id);
+  updateProfile(id: string, userDto: UpdateUserDto): Response<User> {
+    const { data } = this.getProfile(id);
 
-    if (!data) {
+    if (data) {
       throw new NotFoundException('User not found');
     }
 
     const newScore = {
       ...data,
       ...userDto,
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
-    console.log('🔎🔎🔎🔎🔎', userDto);
     this.users = this.users.map((user) => {
       return user.id === id ? newScore : user;
     });
 
-    return newScore;
+    return {
+      data: newScore
+    };
   }
 
   create(createUserDto: CreateUserDto) {}
 
-  findAll() {
-    return `This action returns all users`;
+  getAllPlayers(): Response<User[]> {
+    const players = this.users.filter((user) => user.role === 'USER');
+    return {
+      data: players,
+      metadata: {
+        limit: 10,
+        page: 1,
+        total: players.length,
+        totalPages: 1
+      }
+    };
   }
 
   findOne(id: number) {

@@ -130,7 +130,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse401'
         '500':
           description: Internal Server Error
-    put:
+    patch:
       tags:
         - Users
       summary: Update authenticated player's profile

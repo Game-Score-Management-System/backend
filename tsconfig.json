@@ -16,6 +16,15 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["src/*"],
+      "@/guards/*": ["src/common/guards/*"],
+      "@/interceptors/*": ["src/common/interceptors/*"],
+      "@/utils/*": ["src/common/utils/*"],
+      "@/config/*": ["src/config/*"],
+      "@/interfaces/*": ["src/interfaces/*"],
+      "@/modules/*": ["src/modules/*"]
+    }
   }
 }

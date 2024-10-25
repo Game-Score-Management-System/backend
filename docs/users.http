@@ -1,0 +1,16 @@
+@base_url = http://localhost:3000/api/v1
+
+// Obtener todos los usuarios de tipo Jugador
+GET {{base_url}}/users/admin
+
+### Obtener el perfil de un usuario por su id
+GET {{base_url}}/users/profile/3fa85f64-5717-4562-b3fc-2c963f66afa2
+
+
+### Actualizar el perfil de un usuario
+PATCH {{base_url}}/users/profile/3fa85f64-5717-4562-b3fc-2c963f66afa2
+Content-Type: application/json
+
+{
+    "name": 1
+}

@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
-import { PaginationQueryDto } from 'src/commons/dto/pagination-query';
-import { metadataType } from 'src/commons/interfaces/paginator';
-import { SCORE_DATA } from 'src/utils/data-mock';
+import { SCORE_DATA } from '@/utils/data-mock';
+import { PaginationQueryDto } from '@/common/dto';
 
 export interface IScore {
   id: string;
@@ -20,7 +19,7 @@ export class ScoresService {
 
   findAll(paginationQueryDto: PaginationQueryDto): {
     data: IScore[];
-    metadata: metadataType;
+    metadata: {};
   } {
     const { limit, page } = paginationQueryDto;
     const startIndex = (page - 1) * limit;
@@ -74,5 +73,26 @@ export class ScoresService {
 
   remove(id: number) {
     return `This action removes a #${id} score`;
+  }
+
+  getUserScores(userId: string) {
+    return this.scores.filter((score) => score.userId === userId);
+  }
+
+  findLeaderboard(paginationQueryDto: PaginationQueryDto) {
+    const { limit, page } = paginationQueryDto;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const totalPages = Math.ceil(this.scores.length / limit);
+    const sortedScores = this.scores.sort((a, b) => b.score - a.score);
+    return {
+      data: sortedScores.slice(startIndex, endIndex),
+      metadata: {
+        total: this.scores.length,
+        page,
+        limit,
+        totalPages: totalPages,
+      },
+    };
   }
 }
