@@ -277,6 +277,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse500'
   /scores:
+    get:
+      tags:
+        - Scores
+      summary: Get all scores from the game
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 10
+                      limit:
+                        type: integer
+                        example: 10
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 1
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        scoreId:
+                          type: string
+                          format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        game:
+                          type: string
+                        score:
+                          type: integer
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        deletedAt:
+                          type: string
+                          format: date-time
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid page number
+                  statusCode:
+                    type: integer
+                    example: 400
+                  success:
+                    type: boolean
+                    example: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+
     post:
       tags:
         - Scores
@@ -355,26 +450,51 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    scoreId:
-                      type: string
-                      format: uuid
-                    userId:
-                      type: string
-                      format: uuid
-                    game:
-                      type: string
-                    score:
-                      type: integer
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 10
+                      limit:
+                        type: integer
+                        example: 10
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 1
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        scoreId:
+                          type: string
+                          format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        game:
+                          type: string
+                        score:
+                          type: integer
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+
         '400':
           description: Bad Request
           content:
@@ -476,9 +596,66 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserResponse'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 10
+                      limit:
+                        type: integer
+                        example: 10
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 1
+                  result:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                          example: John
+                        lastname:
+                          type: string
+                          example: Doe
+                        email:
+                          type: string
+                          format: email
+                          example: example@domain.com
+                        role:
+                          type: string
+                          format: enum
+                          example: 'ADMIN | PLAYER'
+                        username:
+                          type: string
+                          example: johndoe@
+                        profilePicture:
+                          type: string
+                          example: https://example.com/image.jpg
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        status:
+                          type: boolean
+                          example: 1
+
         '400':
           description: Bad Request
           content:
@@ -665,38 +842,49 @@ components:
     UserResponse:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: John
-        lastname:
-          type: string
-          example: Doe
-        email:
-          type: string
-          format: email
-          example: example@domain.com
-        role:
-          type: string
-          format: enum
-          example: 'ADMIN | PLAYER'
-        username:
-          type: string
-          example: johndoe@
-        profilePicture:
-          type: string
-          example: https://example.com/image.jpg
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        status:
+        success:
           type: boolean
-          example: 1
+          example: true
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
+          type: object
+        result:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+              example: John
+            lastname:
+              type: string
+              example: Doe
+            email:
+              type: string
+              format: email
+              example: example@domain.com
+            role:
+              type: string
+              format: enum
+              example: 'ADMIN | PLAYER'
+            username:
+              type: string
+              example: johndoe@
+            profilePicture:
+              type: string
+              example: https://example.com/image.jpg
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            status:
+              type: boolean
+              example: 1
     ScoreResponse:
       type: array
       items:
