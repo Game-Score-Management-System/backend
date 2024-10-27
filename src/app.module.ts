@@ -8,9 +8,10 @@ import { ScoresModule } from '@/modules/scores/scores.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `${process.cwd()}/.env.${process.env.NODE_ENV?.trim()}`
-    }),
+    // ConfigModule.forRoot({
+    //   envFilePath: `${process.cwd()}/.env.${process.env.NODE_ENV?.trim()}`,
+    //   isGlobal: true
+    // }),
     AuthModule,
     UsersModule,
     ScoresModule

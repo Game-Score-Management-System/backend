@@ -1,7 +1,23 @@
-import { Controller, Get, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  UseGuards,
+  Req
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '@/guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from '@/guards/roles/roles.guard';
+import { Roles } from '@/common/decorators/roles/roles.decorator';
+import { roles } from '@/interfaces/role.interface';
+import { Request } from 'express';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(
@@ -25,8 +41,10 @@ export class UsersController {
     // return this.scoresService.getUserScores(id);
   }
 
+  @Roles(roles.ADMIN)
   @Get('admin')
-  getAllPlayers() {
+  getAllPlayers(@Req() req: Request) {
+    console.log(req.user);
     return this.usersService.getAllPlayers();
   }
 

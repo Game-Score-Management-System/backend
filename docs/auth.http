@@ -1,0 +1,22 @@
+@base_url = http://localhost:8080/api/v1/auth
+
+
+## Registro de un usuario
+POST {{base_url}}/register
+Content-Type: application/json
+
+{
+    "name": "Juan",
+    "lastname": "Perez",
+    "email": "fake@gmail.com",
+    "password": "admin12345"
+}
+
+### Inicio de sesión
+POST {{base_url}}/login
+Content-Type: application/json
+
+{
+    "email": "fake@gmail.com",
+    "password": "admin12345"
+}
