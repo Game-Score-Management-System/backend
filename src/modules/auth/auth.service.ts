@@ -13,7 +13,7 @@ export class AuthService {
 
   private fakeUser = [];
 
-  async login(res: Response, loginAuthDto: LoginAuthDto) {
+  async login(loginAuthDto: LoginAuthDto) {
     const { email, password } = loginAuthDto;
 
     const user = this.fakeUser.find((user) => user.email === email);
@@ -34,16 +34,12 @@ export class AuthService {
       sub: user.id
     });
 
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      // 2 seconds
-      expires: new Date(Date.now() + 2000)
-    });
-
+    const { password: _, ...userWithoutPassword } = user;
     return {
-      data: { token }
+      data: {
+        ...userWithoutPassword,
+        token
+      }
     };
   }
 
@@ -53,20 +49,27 @@ export class AuthService {
 
     // TODO: Esto debe ir al servicio de users porque es el que se encarga de manejar logica de los usuarios
     if (this.fakeUser.find((user) => user.email === email)) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException('Usuario ya existe, por favor inicie sesión');
     }
 
     const passwordHash = await hash(password, +process.env.JWT_SALT_ROUNDS);
     const id = crypto.randomUUID();
 
-    this.fakeUser.push({
+    const newUser = {
       id,
       username,
       email,
       lastname,
       name,
-      password: passwordHash
-    });
+      password: passwordHash,
+      createdAt: new Date(),
+      updatedAt: null,
+      status: true,
+      role: roles.ADMIN,
+      profilePicture: `https://robohash.org/${name}`
+    };
+
+    this.fakeUser.push(newUser);
 
     const token = this.generateToken({
       username,
@@ -74,12 +77,24 @@ export class AuthService {
       sub: id
     });
 
+    const { password: _, ...userWithoutPassword } = newUser;
     return {
-      data: { token }
+      data: {
+        ...userWithoutPassword,
+        token
+      }
     };
   }
 
   private generateToken(payload: JwtPayload): string {
     return this.jwtService.sign(payload);
+  }
+
+  private appendCookie(res: Response, token: string) {
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
   }
 }

@@ -48,9 +48,11 @@ export class UsersController {
     return this.usersService.getAllPlayers();
   }
 
+  @Roles(roles.ADMIN)
   @Patch('admin/:id')
   updateUser() {}
 
+  @Roles(roles.ADMIN)
   @Delete('admin/:id')
   switchUserStatus() {}
 }

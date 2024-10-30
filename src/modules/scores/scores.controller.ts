@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  ParseUUIDPipe,
+  ParseUUIDPipe
 } from '@nestjs/common';
 import { ScoresService } from './scores.service';
 import { CreateScoreDto } from './dto/create-score.dto';
@@ -20,9 +20,9 @@ export class ScoresController {
 
   @Get()
   findAll(@Query() paginationQueryDto: PaginationQueryDto) {
-    console.log(paginationQueryDto);
     return this.scoresService.findAll(paginationQueryDto);
   }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.scoresService.findOne(id);
@@ -39,10 +39,7 @@ export class ScoresController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateScoreDto: UpdateScoreDto,
-  ) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateScoreDto: UpdateScoreDto) {
     return this.scoresService.update(id, updateScoreDto);
   }
 

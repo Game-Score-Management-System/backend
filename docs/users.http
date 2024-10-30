@@ -3,7 +3,7 @@
 
 // Obtener todos los usuarios de tipo Jugador
 GET {{base_url}}/users/admin
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkBmYWtlIiwicm9sZXMiOlsiQURNSU4iXSwic3ViIjoiZTFjODQ2MDMtZmNiNi00YmY4LTk5YzctNzI2Nzg3ZjE4MGNkIiwiaWF0IjoxNzMwMDcxODc1LCJleHAiOjE3MzAwNzU0NzV9.HRL-q1GyUKV8dRe6MB-TVKeSHXlxySSs4B51s2oQEv8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkBmYWtlIiwicm9sZXMiOlsiUExBWUVSIl0sInN1YiI6ImU4NjE3MTEyLWJlNGUtNDkxYi04NmY2LTEyYzAzYjViOWIxYSIsImlhdCI6MTczMDI1NDg1MSwiZXhwIjoxNzMwMjU4NDUxfQ.I0zE3g0PUtPjXXcUfJTGslqPZfCvlcvLM5xeXxnENuY
 
 
 ### Obtener el perfil de un usuario por su id
