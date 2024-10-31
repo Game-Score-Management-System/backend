@@ -3,11 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@/app.module';
 import { ResponseInterceptor } from '@/interceptors/response/response.interceptor';
-import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
 
   const logger = new Logger('Main');
   // Define the global prefix

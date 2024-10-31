@@ -7,45 +7,91 @@ import {
   Delete,
   ParseUUIDPipe,
   UseGuards,
-  Req
+  Req,
+  Inject
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '@/guards/roles/roles.guard';
 import { Roles } from '@/common/decorators/roles/roles.decorator';
 import { roles } from '@/interfaces/role.interface';
 import { Request } from 'express';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Observable, firstValueFrom } from 'rxjs';
+import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+interface Result {
+  users: User[];
+}
+
+interface User {
+  id: string;
+  name: string;
+  lastname: string;
+  email: string;
+  role: string;
+  username: string;
+  profilePicture: string;
+  createdAt: string;
+  updatedAt: string;
+  status: number;
+}
+
+interface Score {
+  id: string;
+  userId: string;
+  game: string;
+  score: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UsersService {
+  getAllUsers({}): Observable<Result>;
+  getUserProfileById(id: string): Observable<User>;
+  updateProfile(id: string, updateUserDto: UpdateUserDto): Observable<User>;
+  getUserScores(id: string): Observable<Score[]>;
+  removeUser(id: string): Observable<void>;
+}
+
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService
-    // private readonly scoresService: ScoresService,
-  ) {}
+  private usersService: UsersService;
+  constructor(@Inject(PACKAGE_NAMES.USERS_PACKAGE) private client: ClientGrpc) {}
+
+  onModuleInit() {
+    this.usersService = this.client.getService<UsersService>('UserService');
+  }
 
   @Get('profile/:id')
-  getProfile(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.getProfile(id);
+  getUserProfileById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.getUserProfileById(id);
   }
 
   @Patch('profile/:id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    console.log('asdasd', updateUserDto);
-    return this.usersService.updateProfile(id, updateUserDto);
-  }
+  updateProfile(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto
+  ) {}
 
   @Get('/scores/:id')
-  getUserScores(@Param('id', ParseUUIDPipe) id: string) {
-    // return this.scoresService.getUserScores(id);
-  }
+  getUserScores(@Param('id', ParseUUIDPipe) id: string) {}
 
-  @Roles(roles.ADMIN)
+  // @Roles(roles.ADMIN)
   @Get('admin')
-  getAllPlayers(@Req() req: Request) {
-    console.log(req.user);
-    return this.usersService.getAllPlayers();
+  async getAllUsers() {
+    const { users } = await firstValueFrom(this.usersService.getAllUsers({}));
+    console.log('users', users);
+    return {
+      data: users,
+      metadata: {
+        limit: 10,
+        page: 1,
+        total: 1,
+        totalPages: 1
+      }
+    };
   }
 
   @Roles(roles.ADMIN)
@@ -54,5 +100,5 @@ export class UsersController {
 
   @Roles(roles.ADMIN)
   @Delete('admin/:id')
-  switchUserStatus() {}
+  removeUser() {}
 }

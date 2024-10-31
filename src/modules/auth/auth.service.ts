@@ -52,7 +52,7 @@ export class AuthService {
       throw new BadRequestException('Usuario ya existe, por favor inicie sesión');
     }
 
-    const passwordHash = await hash(password, +process.env.JWT_SALT_ROUNDS);
+    const passwordHash = await hash(password, 10);
     const id = crypto.randomUUID();
 
     const newUser = {

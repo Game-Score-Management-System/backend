@@ -7,44 +7,78 @@ import {
   Param,
   Delete,
   Query,
-  ParseUUIDPipe
+  ParseUUIDPipe,
+  Inject
 } from '@nestjs/common';
-import { ScoresService } from './scores.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
 import { PaginationQueryDto } from '@/common/dto';
+import { firstValueFrom, Observable } from 'rxjs';
+import { PACKAGE_NAMES } from '@/config/grpc-client.options';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Response } from '@/interfaces/response.interface';
+
+interface Result {
+  scores: Score[];
+}
+
+interface Score {
+  id: string;
+  userId: string;
+  game: string;
+  score: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ScoresService {
+  getAllScores({}): Observable<Result>;
+  getScoreById(id: string): Observable<Score>;
+  getLeaderboard({}): Observable<Score[]>;
+  createScore(createScoreDto: CreateScoreDto): Observable<Score>;
+  updateScore(id: string, updateScoreDto: UpdateScoreDto): Observable<Score>;
+  removeScore(id: string): Observable<void>;
+}
 
 @Controller('scores')
 export class ScoresController {
-  constructor(private readonly scoresService: ScoresService) {}
+  private scoresService: ScoresService;
+  constructor(@Inject(PACKAGE_NAMES.SCORES_PACKAGE) private client: ClientGrpc) {}
+
+  onModuleInit() {
+    this.scoresService = this.client.getService<ScoresService>('ScoresService');
+  }
 
   @Get()
-  findAll(@Query() paginationQueryDto: PaginationQueryDto) {
-    return this.scoresService.findAll(paginationQueryDto);
+  async getAllScores(@Query() paginationQueryDto: PaginationQueryDto) {
+    const { scores } = await firstValueFrom(this.scoresService.getAllScores({}));
+
+    return {
+      data: scores,
+      metadata: {
+        page: paginationQueryDto.page,
+        limit: paginationQueryDto.limit,
+        total: 1,
+        totalPages: 2
+      }
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.scoresService.findOne(id);
-  }
+  getScoreById(@Param('id', ParseUUIDPipe) id: string) {}
 
   @Get('leaderboard')
-  findLeaderboard(@Query() paginationQueryDto: PaginationQueryDto) {
-    return this.scoresService.findLeaderboard(paginationQueryDto);
-  }
+  GetLeaderboard(@Query() paginationQueryDto: PaginationQueryDto) {}
 
   @Post()
-  create(@Body() createScoreDto: CreateScoreDto) {
-    return this.scoresService.create(createScoreDto);
-  }
+  createScore(@Body() createScoreDto: CreateScoreDto) {}
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateScoreDto: UpdateScoreDto) {
-    return this.scoresService.update(id, updateScoreDto);
-  }
+  updateScore(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateScoreDto: UpdateScoreDto
+  ) {}
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.scoresService.remove(+id);
-  }
+  removeScore(@Param('id', ParseUUIDPipe) id: string) {}
 }

@@ -53,10 +53,17 @@ export class ResponseInterceptor implements NestInterceptor {
 
     console.log('exception', exception);
 
-    let message =
-      typeof exception?.getResponse() === 'string'
-        ? exception?.getResponse()
-        : (exception?.getResponse() as any).message;
+    let message: string | string[] = 'Internal server error';
+
+    const responseExp = exception.hasOwnProperty('getResponse')
+      ? exception.getResponse()
+      : null;
+
+    if (typeof responseExp === 'string') {
+      message = responseExp;
+    } else if (responseExp && typeof responseExp === 'object') {
+      message = (responseExp as any).message;
+    }
 
     response.status(status).json({
       success: false,
