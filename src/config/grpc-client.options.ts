@@ -9,12 +9,12 @@ export const GRPC_MICROSERVICE_PACKAGES = {
   USERS_PACKAGE: {
     package: 'users',
     protoPath: 'src/protos/users.proto',
-    url: process.env.USERS_SERVICE_URL ?? ':50051'
+    url: process.env.USERS_SERVICE_URL ?? 'localhost:50051'
   },
   SCORES_PACKAGE: {
     package: 'scores',
     protoPath: 'src/protos/scores.proto',
-    url: process.env.SCORES_SERVICE_URL ?? ':50052'
+    url: process.env.SCORES_SERVICE_URL ?? 'localhost:50052'
   }
 };
 
