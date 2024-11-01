@@ -8,7 +8,10 @@ import {
   ParseUUIDPipe,
   UseGuards,
   Req,
-  Inject
+  Inject,
+  Query,
+  HttpCode,
+  HttpStatus
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/guards/jwt-auth/jwt-auth.guard';
@@ -19,9 +22,13 @@ import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable, firstValueFrom } from 'rxjs';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
+import { PaginationQueryDto } from '@/common/dto';
+import { Metadata } from '@/interfaces';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
 interface Result {
   users: User[];
+  metadata?: Metadata;
 }
 
 interface User {
@@ -48,10 +55,11 @@ interface Score {
 
 interface UsersService {
   getAllUsers({}): Observable<Result>;
-  getUserProfileById(id: string): Observable<User>;
-  updateProfile(id: string, updateUserDto: UpdateUserDto): Observable<User>;
-  getUserScores(id: string): Observable<Score[]>;
-  removeUser(id: string): Observable<void>;
+  getUserProfileById({}): Observable<{ user: User }>;
+  updateProfile({}): Observable<{ user: User }>;
+  updateUserStatus({}): Observable<{ user: User }>;
+  getUserScores({}): Observable<Score[]>;
+  removeUser({}): Observable<void>;
 }
 
 // @UseGuards(JwtAuthGuard, RolesGuard)
@@ -64,41 +72,59 @@ export class UsersController {
     this.usersService = this.client.getService<UsersService>('UserService');
   }
 
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Get('profile/:id')
-  getUserProfileById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.getUserProfileById(id);
+  async getUserProfileById(@Param('id', ParseUUIDPipe) id: string) {
+    const { user } = await firstValueFrom(this.usersService.getUserProfileById({ id }));
+    return {
+      data: user
+    };
   }
 
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Patch('profile/:id')
-  updateProfile(
+  async updateProfile(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto
-  ) {}
+  ) {
+    const { user } = await firstValueFrom(
+      this.usersService.updateProfile({ id, ...updateUserDto })
+    );
 
+    return { data: user };
+  }
+
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Get('/scores/:id')
   getUserScores(@Param('id', ParseUUIDPipe) id: string) {}
 
-  // @Roles(roles.ADMIN)
+  @Roles(roles.ADMIN)
   @Get('admin')
-  async getAllUsers() {
-    const { users } = await firstValueFrom(this.usersService.getAllUsers({}));
-    console.log('users', users);
-    return {
-      data: users,
-      metadata: {
-        limit: 10,
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    };
+  async getAllUsers(@Query() paginationQueryDto: PaginationQueryDto) {
+    const { users, metadata } = await firstValueFrom(
+      this.usersService.getAllUsers(paginationQueryDto)
+    );
+    return { data: users, metadata };
   }
 
   @Roles(roles.ADMIN)
   @Patch('admin/:id')
-  updateUser() {}
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateUserStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserStatusDto
+  ) {
+    const { user } = await firstValueFrom(
+      this.usersService.updateUserStatus({ id, status: updateUserDto.status })
+    );
+    return { data: user };
+  }
 
   @Roles(roles.ADMIN)
   @Delete('admin/:id')
-  removeUser() {}
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeUser(@Param('id', ParseUUIDPipe) id: string) {
+    await firstValueFrom(this.usersService.removeUser({ id }));
+    return { data: null };
+  }
 }

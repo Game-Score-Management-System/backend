@@ -13,12 +13,8 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((res: { data: any; metadata?: Metadata }) =>
-        this.responseHandler(res, context)
-      ),
-      catchError((err: HttpException) =>
-        throwError(() => this.errorHandler(err, context))
-      )
+      map((res: { data: any; metadata?: Metadata }) => this.responseHandler(res, context)),
+      catchError((err: HttpException) => throwError(() => this.errorHandler(err, context)))
     );
   }
 
@@ -35,7 +31,6 @@ export class ResponseInterceptor implements NestInterceptor {
       metadata: {
         limit: metadata?.limit,
         page: metadata?.page,
-        total: metadata?.total,
         totalPages: metadata?.totalPages
       },
       result: data
@@ -47,22 +42,18 @@ export class ResponseInterceptor implements NestInterceptor {
     const response = ctx.getResponse();
 
     const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    console.log('exception', exception);
+    let message: string | string[] | object = 'Internal server error';
 
-    let message: string | string[] = 'Internal server error';
-
-    const responseExp = exception.hasOwnProperty('getResponse')
-      ? exception.getResponse()
-      : null;
+    const responseExp = exception instanceof HttpException ? exception.getResponse() : null;
 
     if (typeof responseExp === 'string') {
       message = responseExp;
     } else if (responseExp && typeof responseExp === 'object') {
       message = (responseExp as any).message;
+    } else if (exception.message) {
+      message = exception.message;
     }
 
     response.status(status).json({
