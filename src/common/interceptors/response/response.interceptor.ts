@@ -33,7 +33,7 @@ export class ResponseInterceptor implements NestInterceptor {
         page: metadata?.page,
         totalPages: metadata?.totalPages
       },
-      result: data
+      result: data ?? []
     };
   }
 
