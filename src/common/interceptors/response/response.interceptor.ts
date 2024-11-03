@@ -29,9 +29,7 @@ export class ResponseInterceptor implements NestInterceptor {
       success: true,
       statusCode,
       metadata: {
-        limit: metadata?.limit,
-        page: metadata?.page,
-        totalPages: metadata?.totalPages
+        ...metadata
       },
       result: data ?? []
     };

@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { Metadata } from './metadata.interface';
+import { Score } from './score-service.interface';
 
 interface Result {
   users: User[];
@@ -17,15 +18,6 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   status: number;
-}
-
-interface Score {
-  id: string;
-  userId: string;
-  game: string;
-  score: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface UsersService {

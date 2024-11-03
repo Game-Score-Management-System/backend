@@ -301,16 +301,16 @@ paths:
                   metadata:
                     type: object
                     properties:
-                      total:
-                        type: integer
-                        example: 10
                       limit:
                         type: integer
                         example: 10
                       page:
                         type: integer
                         example: 1
-                      pages:
+                      totalItems:
+                        type: integer
+                        example: 10
+                      totalPages:
                         type: integer
                         example: 1
                   result:

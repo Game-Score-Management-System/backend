@@ -16,29 +16,7 @@ import { PaginationQueryDto } from '@/common/dto';
 import { firstValueFrom, Observable } from 'rxjs';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Response } from '@/interfaces/response.interface';
-
-interface Result {
-  scores: Score[];
-}
-
-interface Score {
-  id: string;
-  userId: string;
-  game: string;
-  score: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ScoresService {
-  getAllScores({}): Observable<Result>;
-  getScoreById(id: string): Observable<Score>;
-  getLeaderboard({}): Observable<Score[]>;
-  createScore(createScoreDto: CreateScoreDto): Observable<Score>;
-  updateScore(id: string, updateScoreDto: UpdateScoreDto): Observable<Score>;
-  removeScore(id: string): Observable<void>;
-}
+import { ScoresService } from '@/interfaces/score-service.interface';
 
 @Controller('scores')
 export class ScoresController {
@@ -51,16 +29,12 @@ export class ScoresController {
 
   @Get()
   async getAllScores(@Query() paginationQueryDto: PaginationQueryDto) {
-    const { scores } = await firstValueFrom(this.scoresService.getAllScores({}));
-
+    const { scores, metadata } = await firstValueFrom(
+      this.scoresService.getAllScores(paginationQueryDto)
+    );
     return {
       data: scores,
-      metadata: {
-        page: paginationQueryDto.page,
-        limit: paginationQueryDto.limit,
-        total: 1,
-        totalPages: 2
-      }
+      metadata
     };
   }
 
@@ -71,13 +45,15 @@ export class ScoresController {
   GetLeaderboard(@Query() paginationQueryDto: PaginationQueryDto) {}
 
   @Post()
-  createScore(@Body() createScoreDto: CreateScoreDto) {}
+  async createScore(@Body() createScoreDto: CreateScoreDto) {
+    const score = await firstValueFrom(this.scoresService.createScore(createScoreDto));
+    return {
+      data: score
+    };
+  }
 
   @Patch(':id')
-  updateScore(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateScoreDto: UpdateScoreDto
-  ) {}
+  updateScore(@Param('id', ParseUUIDPipe) id: string, @Body() updateScoreDto: UpdateScoreDto) {}
 
   @Delete(':id')
   removeScore(@Param('id', ParseUUIDPipe) id: string) {}
