@@ -7,7 +7,6 @@ import {
   Delete,
   ParseUUIDPipe,
   UseGuards,
-  Req,
   Inject,
   Query,
   HttpCode,
@@ -18,51 +17,14 @@ import { JwtAuthGuard } from '@/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '@/guards/roles/roles.guard';
 import { Roles } from '@/common/decorators/roles/roles.decorator';
 import { roles } from '@/interfaces/role.interface';
-import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 import { PaginationQueryDto } from '@/common/dto';
-import { Metadata } from '@/interfaces';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { UsersService } from '@/interfaces/user-service.interface';
 
-interface Result {
-  users: User[];
-  metadata?: Metadata;
-}
-
-interface User {
-  id: string;
-  name: string;
-  lastname: string;
-  email: string;
-  role: string;
-  username: string;
-  profilePicture: string;
-  createdAt: string;
-  updatedAt: string;
-  status: number;
-}
-
-interface Score {
-  id: string;
-  userId: string;
-  game: string;
-  score: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface UsersService {
-  getAllUsers({}): Observable<Result>;
-  getUserProfileById({}): Observable<{ user: User }>;
-  updateProfile({}): Observable<{ user: User }>;
-  updateUserStatus({}): Observable<{ user: User }>;
-  getUserScores({}): Observable<Score[]>;
-  removeUser({}): Observable<void>;
-}
-
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   private usersService: UsersService;

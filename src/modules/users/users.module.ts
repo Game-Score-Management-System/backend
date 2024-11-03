@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { getGrpcClientOptions } from '@/config/grpc-client.options';
 
 const grpcClientOptions = getGrpcClientOptions('USERS_PACKAGE');
