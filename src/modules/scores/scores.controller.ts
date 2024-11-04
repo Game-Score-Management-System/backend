@@ -19,7 +19,7 @@ import { firstValueFrom } from 'rxjs';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ScoresService } from '@/interfaces/score-service.interface';
-import { ScoresQueryDto } from './dto/scores-query.dto';
+import { UsersScoresQueryDto } from '@/common/dto/users-scores-query.dto';
 import { UsersService } from '@/interfaces/user-service.interface';
 
 @Controller('scores')
@@ -37,10 +37,19 @@ export class ScoresController {
   }
 
   @Get()
-  async getAllScores(@Query() scoresQueryDto: ScoresQueryDto) {
+  async getAllScores(@Query() scoresQueryDto: UsersScoresQueryDto) {
+    const { limit, page, ...filter } = scoresQueryDto;
+
     const { scores, metadata } = await firstValueFrom(
-      this.scoresService.getAllScores(scoresQueryDto)
+      this.scoresService.getAllScores({ limit, page, filter })
     );
+
+    if (!scores) {
+      return {
+        data: [],
+        metadata
+      };
+    }
 
     const promises = scores.map(async (score) => {
       const { user } = await firstValueFrom(
@@ -98,7 +107,18 @@ export class ScoresController {
   }
 
   @Patch(':id')
-  updateScore(@Param('id', ParseUUIDPipe) id: string, @Body() updateScoreDto: UpdateScoreDto) {}
+  async updateScore(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateScoreDto: UpdateScoreDto
+  ) {
+    const score = await firstValueFrom(
+      this.scoresService.updateScore({ scoreId: id, ...updateScoreDto })
+    );
+
+    return {
+      data: score
+    };
+  }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

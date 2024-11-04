@@ -22,6 +22,6 @@ export interface ScoresService {
   getScoreById(id: string): Observable<Score>;
   getLeaderboard({}): Observable<Result>;
   createScore(createScoreDto: CreateScoreDto): Observable<Score>;
-  updateScore(id: string, updateScoreDto: UpdateScoreDto): Observable<Score>;
+  updateScore({}): Observable<Score>;
   removeScore({}): Observable<void>;
 }

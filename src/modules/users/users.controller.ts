@@ -24,7 +24,7 @@ import { PaginationQueryDto } from '@/common/dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UsersService } from '@/interfaces/user-service.interface';
 import { ScoresService } from '@/interfaces/score-service.interface';
-import { UsersScoresQueryDto } from './dto/users-scores-query.dto';
+import { UsersScoresQueryDto } from '@/common/dto/users-scores-query.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -65,12 +65,20 @@ export class UsersController {
   @Roles(roles.PLAYER, roles.ADMIN)
   @Get('/scores/:id')
   async getUserScores(
-    @Query() paginationQueryDto: UsersScoresQueryDto,
+    @Query() usersScoresQueryDto: UsersScoresQueryDto,
     @Param('id', ParseUUIDPipe) id: string
   ) {
+    const { limit, page, ...filter } = usersScoresQueryDto;
     const { scores, metadata } = await firstValueFrom(
-      this.scoresService.getAllScores({ ...paginationQueryDto, userId: id })
+      this.scoresService.getAllScores({ limit, page, filter: { userId: id, ...filter } })
     );
+
+    if (!scores) {
+      return {
+        data: [],
+        metadata
+      };
+    }
 
     const promises = scores.map(async (score) => {
       const { user } = await firstValueFrom(
