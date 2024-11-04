@@ -5,6 +5,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { getGrpcClientOptions } from '@/config/grpc-client.options';
 
 const grpcClientOptions = getGrpcClientOptions('USERS_PACKAGE');
+const grpcScoreClientOptions = getGrpcClientOptions('SCORES_PACKAGE');
 
 @Module({
   imports: [
@@ -14,9 +15,17 @@ const grpcClientOptions = getGrpcClientOptions('USERS_PACKAGE');
         name: grpcClientOptions.name,
         options: grpcClientOptions.options
       }
+    ]),
+    ClientsModule.register([
+      {
+        transport: grpcScoreClientOptions.transport,
+        name: grpcScoreClientOptions.name,
+        options: grpcScoreClientOptions.options
+      }
     ])
   ],
   controllers: [UsersController],
-  providers: [UsersService]
+  providers: [UsersService],
+  exports: []
 })
 export class UsersModule {}

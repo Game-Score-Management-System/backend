@@ -20,8 +20,8 @@ export interface Score {
 export interface ScoresService {
   getAllScores({}): Observable<Result>;
   getScoreById(id: string): Observable<Score>;
-  getLeaderboard({}): Observable<Score[]>;
+  getLeaderboard({}): Observable<Result>;
   createScore(createScoreDto: CreateScoreDto): Observable<Score>;
   updateScore(id: string, updateScoreDto: UpdateScoreDto): Observable<Score>;
-  removeScore(id: string): Observable<void>;
+  removeScore({}): Observable<void>;
 }

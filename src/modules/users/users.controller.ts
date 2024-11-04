@@ -23,15 +23,22 @@ import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 import { PaginationQueryDto } from '@/common/dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UsersService } from '@/interfaces/user-service.interface';
+import { ScoresService } from '@/interfaces/score-service.interface';
+import { UsersScoresQueryDto } from './dto/users-scores-query.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   private usersService: UsersService;
-  constructor(@Inject(PACKAGE_NAMES.USERS_PACKAGE) private client: ClientGrpc) {}
+  private scoresService: ScoresService;
+  constructor(
+    @Inject(PACKAGE_NAMES.USERS_PACKAGE) private client: ClientGrpc,
+    @Inject(PACKAGE_NAMES.SCORES_PACKAGE) private scoresClient: ClientGrpc
+  ) {}
 
   onModuleInit() {
     this.usersService = this.client.getService<UsersService>('UserService');
+    this.scoresService = this.scoresClient.getService<ScoresService>('ScoresService');
   }
 
   @Roles(roles.PLAYER, roles.ADMIN)
@@ -52,13 +59,36 @@ export class UsersController {
     const { user } = await firstValueFrom(
       this.usersService.updateProfile({ id, ...updateUserDto })
     );
-
     return { data: user };
   }
 
   @Roles(roles.PLAYER, roles.ADMIN)
   @Get('/scores/:id')
-  getUserScores(@Param('id', ParseUUIDPipe) id: string) {}
+  async getUserScores(
+    @Query() paginationQueryDto: UsersScoresQueryDto,
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    const { scores, metadata } = await firstValueFrom(
+      this.scoresService.getAllScores({ ...paginationQueryDto, userId: id })
+    );
+
+    const promises = scores.map(async (score) => {
+      const { user } = await firstValueFrom(
+        this.usersService.getUserProfileById({ id: score.userId })
+      );
+      return {
+        ...score,
+        user
+      };
+    });
+
+    const scoresWithUsers = await Promise.all(promises);
+
+    return {
+      data: scoresWithUsers,
+      metadata: metadata
+    };
+  }
 
   @Roles(roles.ADMIN)
   @Get('admin')
