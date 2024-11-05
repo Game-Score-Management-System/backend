@@ -10,7 +10,8 @@ import {
   ParseUUIDPipe,
   Inject,
   HttpStatus,
-  HttpCode
+  HttpCode,
+  UseGuards
 } from '@nestjs/common';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
@@ -21,7 +22,12 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ScoresService } from '@/interfaces/score-service.interface';
 import { UsersScoresQueryDto } from '@/common/dto/users-scores-query.dto';
 import { UsersService } from '@/interfaces/user-service.interface';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from '@/common/guards/roles/roles.guard';
+import { Roles } from '@/common/decorators/roles/roles.decorator';
+import { roles } from '@/interfaces/role.interface';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('scores')
 export class ScoresController {
   private scoresService: ScoresService;
@@ -36,6 +42,7 @@ export class ScoresController {
     this.usersService = this.usersClient.getService<UsersService>('UserService');
   }
 
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Get()
   async getAllScores(@Query() scoresQueryDto: UsersScoresQueryDto) {
     const { limit, page, ...filter } = scoresQueryDto;
@@ -69,6 +76,7 @@ export class ScoresController {
     };
   }
 
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Get('leaderboard/:gameName')
   async GetLeaderboard(
     @Query() paginationQueryDto: PaginationQueryDto,
@@ -95,9 +103,11 @@ export class ScoresController {
     };
   }
 
+  @Roles(roles.PLAYER, roles.ADMIN)
   @Get(':id')
   getScoreById(@Param('id', ParseUUIDPipe) id: string) {}
 
+  @Roles(roles.ADMIN)
   @Post()
   async createScore(@Body() createScoreDto: CreateScoreDto) {
     const score = await firstValueFrom(this.scoresService.createScore(createScoreDto));
@@ -106,6 +116,7 @@ export class ScoresController {
     };
   }
 
+  @Roles(roles.ADMIN)
   @Patch(':id')
   async updateScore(
     @Param('id', ParseUUIDPipe) id: string,
@@ -120,6 +131,7 @@ export class ScoresController {
     };
   }
 
+  @Roles(roles.ADMIN)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeScore(@Param('id', ParseUUIDPipe) id: string) {
