@@ -1,2 +1,4 @@
-import { config } from 'dotenv';
-config({ path: `${process.cwd()}/.env.${process.env.NODE_ENV?.trim()}` });
+import 'dotenv/config';
+
+// import { config } from 'dotenv';
+// config({ path: `${process.cwd()}/.env.${process.env.NODE_ENV?.trim()}` });
