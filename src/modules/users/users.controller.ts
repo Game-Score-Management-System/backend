@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus
 } from '@nestjs/common';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '@/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '@/guards/roles/roles.guard';
 import { Roles } from '@/common/decorators/roles/roles.decorator';
@@ -21,10 +21,10 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
 import { PaginationQueryDto } from '@/common/dto';
-import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UsersService } from '@/interfaces/user-service.interface';
 import { ScoresService } from '@/interfaces/score-service.interface';
 import { UsersScoresQueryDto } from '@/common/dto/users-scores-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -54,10 +54,10 @@ export class UsersController {
   @Patch('profile/:id')
   async updateProfile(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateUserDto
+    @Body() updateProfileDto: UpdateProfileDto
   ) {
     const { user } = await firstValueFrom(
-      this.usersService.updateProfile({ id, ...updateUserDto })
+      this.usersService.updateProfile({ id, ...updateProfileDto })
     );
     return { data: user };
   }
@@ -110,13 +110,8 @@ export class UsersController {
   @Roles(roles.ADMIN)
   @Patch('admin/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updateUserStatus(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateUserStatusDto
-  ) {
-    const { user } = await firstValueFrom(
-      this.usersService.updateUserStatus({ id, status: updateUserDto.status })
-    );
+  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
+    const { user } = await firstValueFrom(this.usersService.updateUser({ id, ...updateUserDto }));
     return { data: user };
   }
 

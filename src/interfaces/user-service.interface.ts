@@ -24,7 +24,7 @@ export interface UsersService {
   getAllUsers({}): Observable<Result>;
   getUserProfileById({}): Observable<{ user: User }>;
   updateProfile({}): Observable<{ user: User }>;
-  updateUserStatus({}): Observable<{ user: User }>;
+  updateUser({}): Observable<{ user: User }>;
   getUserScores({}): Observable<Score[]>;
   removeUser({}): Observable<void>;
   registerPlayer({}): Observable<{ user: User }>;
