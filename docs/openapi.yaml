@@ -10,7 +10,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: http://localhost:8080/api/v1
     description: Local server
 tags:
   - name: Auth
@@ -103,6 +103,105 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout and invalidate JWT token
+      description: Logout and invalidate JWT token
+      operationId: logout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+  /auth/validate-token:
+    post:
+      tags:
+        - Auth
+      summary: Validate JWT token
+      description: Validate JWT token
+      operationId: validateToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      valid:
+                        type: boolean
+                        example: true
         '401':
           description: Unauthorized
           content:
@@ -436,7 +535,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse500'
-  /scores/leaderboard:
+  /scores/leaderboard/{gameName}:
     get:
       tags:
         - Scores
@@ -444,6 +543,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/limit'
+        - name: gameName
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -461,16 +565,16 @@ paths:
                   metadata:
                     type: object
                     properties:
-                      total:
-                        type: integer
-                        example: 10
                       limit:
                         type: integer
                         example: 10
                       page:
                         type: integer
                         example: 1
-                      pages:
+                      totalItems:
+                        type: integer
+                        example: 10
+                      totalPages:
                         type: integer
                         example: 1
                   result:
@@ -530,6 +634,72 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse500'
   /scores/{scoreId}:
+    patch:
+      tags:
+        - Scores
+      summary: Update a specific score (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score:
+                  type: integer
+                  example: 100
+                game:
+                  type: string
+                  example: 'Pacman'
+              required:
+                - game
+                - score
+      parameters:
+        - name: scoreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid score ID
+                  statusCode:
+                    type: integer
+                    example: 400
+                  success:
+                    type: boolean
+                    example: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
     delete:
       tags:
         - Scores
@@ -580,6 +750,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse500'
+
   /users/admin:
     get:
       tags:
@@ -607,16 +778,16 @@ paths:
                   metadata:
                     type: object
                     properties:
-                      total:
-                        type: integer
-                        example: 10
                       limit:
                         type: integer
                         example: 10
                       page:
                         type: integer
                         example: 1
-                      pages:
+                      totalItems:
+                        type: integer
+                        example: 10
+                      totalPages:
                         type: integer
                         example: 1
                   result:

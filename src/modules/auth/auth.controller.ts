@@ -25,10 +25,7 @@ export class AuthController {
     private readonly jwtService: JwtService,
     @Inject(PACKAGE_NAMES.USERS_PACKAGE) private client: ClientGrpc
   ) {
-    this.redisClient = createClient({
-      url: process.env.REDIS_URL
-    });
-
+    this.redisClient = createClient({ url: process.env.REDIS_URL });
     this.redisClient.connect();
   }
 
