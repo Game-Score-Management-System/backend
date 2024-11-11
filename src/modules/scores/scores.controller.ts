@@ -85,6 +85,14 @@ export class ScoresController {
     const { scores, metadata } = await firstValueFrom(
       this.scoresService.getLeaderboard({ ...paginationQueryDto, game: gameName })
     );
+
+    if (metadata.totalItems === 0) {
+      return {
+        data: [],
+        metadata
+      };
+    }
+
     const promises = scores.map(async (score) => {
       const { user } = await firstValueFrom(
         this.usersService.getUserProfileById({ id: score.userId })

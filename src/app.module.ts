@@ -5,6 +5,7 @@ import { AppService } from '@/app.service';
 import { UsersModule } from '@/modules/users/users.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { ScoresModule } from '@/modules/scores/scores.module';
+import { RedisService } from './common/services/redis/redis.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { ScoresModule } from '@/modules/scores/scores.module';
     ScoresModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, RedisService]
 })
 export class AppModule {}

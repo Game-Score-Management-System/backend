@@ -4,10 +4,10 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
-import { UsersModule } from '../users/users.module';
 import { ClientsModule } from '@nestjs/microservices';
 
 import { getGrpcClientOptions } from '@/config/grpc-client.options';
+import { RedisService } from '@/common/services/redis/redis.service';
 
 const grpcClientOptions = getGrpcClientOptions('USERS_PACKAGE');
 
@@ -26,7 +26,7 @@ const grpcClientOptions = getGrpcClientOptions('USERS_PACKAGE');
       }
     ])
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, RedisService],
   controllers: [AuthController],
   exports: [AuthService]
 })

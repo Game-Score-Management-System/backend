@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Inject,
-  HttpStatus,
-  HttpCode,
-  InternalServerErrorException
-} from '@nestjs/common';
+import { Controller, Post, Body, Inject, HttpStatus, HttpCode } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { PACKAGE_NAMES } from '@/config/grpc-client.options';
@@ -14,20 +6,17 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { UsersService } from '@/interfaces/user-service.interface';
 import { firstValueFrom } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
-import { createClient, RedisClientType } from 'redis';
+import { RedisService } from '@/common/services/redis/redis.service';
 
 @Controller('auth')
 export class AuthController {
   private usersService: UsersService;
-  private redisClient: RedisClientType;
 
   constructor(
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
     @Inject(PACKAGE_NAMES.USERS_PACKAGE) private client: ClientGrpc
-  ) {
-    this.redisClient = createClient({ url: process.env.REDIS_URL });
-    this.redisClient.connect();
-  }
+  ) {}
 
   onModuleInit() {
     this.usersService = this.client.getService<UsersService>('UserService');
@@ -43,15 +32,7 @@ export class AuthController {
       sub: user.id
     });
 
-    try {
-      await this.redisClient.set(token, 'active', {
-        EX: +process.env.JWT_EXPIRATION
-      });
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Error while saving token');
-    }
-
+    await this.redisService.set(token, 'active', +process.env.JWT_EXPIRATION);
     return { data: { ...user, token } };
   }
 
@@ -64,25 +45,22 @@ export class AuthController {
       sub: user.id
     });
 
+    await this.redisService.set(token, 'active', +process.env.JWT_EXPIRATION);
+
     return { data: { ...user, token } };
   }
 
   @Post('logout')
+  @HttpCode(HttpStatus.OK)
   async logout(@Body() { token }: { token: string }) {
-    try {
-      await this.redisClient.del(token);
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Error while deleting token');
-    }
-
+    await this.redisService.del(token);
     return { data: null };
   }
 
   @Post('validate-token')
   @HttpCode(HttpStatus.OK)
   async validateToken(@Body() { token }: { token: string }) {
-    const result = await this.redisClient.get(token);
+    const result = await this.redisService.get(token);
     return { data: { valid: result === 'active' } };
   }
 }
