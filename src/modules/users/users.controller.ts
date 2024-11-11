@@ -25,6 +25,7 @@ import { UsersService } from '@/interfaces/user-service.interface';
 import { ScoresService } from '@/interfaces/score-service.interface';
 import { UsersScoresQueryDto } from '@/common/dto/users-scores-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GetAllUsersDto } from './dto/get-all-users.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -100,10 +101,8 @@ export class UsersController {
 
   @Roles(roles.ADMIN)
   @Get('admin')
-  async getAllUsers(@Query() paginationQueryDto: PaginationQueryDto) {
-    const { users, metadata } = await firstValueFrom(
-      this.usersService.getAllUsers(paginationQueryDto)
-    );
+  async getAllUsers(@Query() getAllUsersDto: GetAllUsersDto) {
+    const { users, metadata } = await firstValueFrom(this.usersService.getAllUsers(getAllUsersDto));
     return { data: users, metadata };
   }
 

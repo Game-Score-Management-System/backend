@@ -47,6 +47,43 @@ export class ScoresController {
   async getAllScores(@Query() scoresQueryDto: UsersScoresQueryDto) {
     const { limit, page, ...filter } = scoresQueryDto;
 
+    // TODO: Mejorar la lógica de búsqueda
+    if (filter.search) {
+      const { users, metadata } = await firstValueFrom(
+        this.usersService.getAllUsers({
+          limit: scoresQueryDto.limit,
+          page: scoresQueryDto.page,
+          search: filter.search
+        })
+      );
+
+      if (!users) {
+        return {
+          data: [],
+          metadata: { totalItems: 0, limit, page }
+        };
+      }
+
+      const promises = users.map(async (user) => {
+        const { scores } = await firstValueFrom(
+          this.scoresService.getAllScores({ filter: { ...filter, userId: user.id } })
+        );
+
+        if (!scores) {
+          return [];
+        }
+
+        return scores.map((score) => ({ ...score, user }));
+      });
+
+      const results = await Promise.all(promises);
+
+      return {
+        data: results.flat(),
+        metadata
+      };
+    }
+
     const { scores, metadata } = await firstValueFrom(
       this.scoresService.getAllScores({ limit, page, filter })
     );

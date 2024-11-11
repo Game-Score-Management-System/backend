@@ -18,4 +18,8 @@ export class UsersScoresQueryDto extends PaginationQueryDto {
   @IsBoolean()
   @Type(() => Boolean)
   showDeleted?: boolean;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
